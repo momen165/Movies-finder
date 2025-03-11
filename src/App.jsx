@@ -5,6 +5,7 @@ import MovieCard from "./components/MovieCard.jsx";
 import FilterSort from "./components/FilterSort.jsx";
 import { useDebounce } from "react-use";
 import { getTrendingMovies, updateSearchCount } from "./appwrite.js";
+import { Analytics } from '@vercel/analytics/react';
 
 // Constants moved outside component to prevent recreation on renders
 const API_BASE_URL = 'https://api.themoviedb.org/3';
@@ -431,7 +432,9 @@ const App = () => {
                 {/* Render the movie details modal */}
                 <MovieDetailsModal />
             </div>
+            <Analytics />
         </main>
+
     );
 };
 
