@@ -1,0 +1,542 @@
+/* Imports */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+@import "tailwindcss";
+
+/* Theme Variables */
+@theme {
+  /* Colors */
+  --color-primary: #030014;
+  --color-light-100: #cecefb;
+  --color-light-200: #a8b5db;
+  --color-gray-100: #9ca4ab;
+  --color-dark-100: #0f0d23;
+
+  /* Typography */
+  --font-dm-sans: "DM Sans", sans-serif;
+
+  /* Breakpoints */
+  --breakpoint-xs: 480px;
+
+  /* Background */
+  --background-image-hero-pattern: url("/public/hero-bg.png");
+}
+
+/* Base Styles */
+@layer base {
+  body {
+    font-family: var(--font-dm-sans), sans-serif;
+    font-optical-sizing: auto;
+    background: var(--color-primary);
+  }
+
+  h1 {
+    @apply mx-auto max-w-4xl text-center text-5xl font-bold leading-tight tracking-[-1%] text-white;
+    @apply sm:text-[64px] sm:leading-[76px];
+  }
+
+  h2 {
+    @apply text-2xl font-bold text-white;
+    @apply sm:text-3xl;
+  }
+
+  main {
+    @apply relative min-h-screen bg-primary;
+  }
+
+  header {
+    @apply mt-5 sm:mt-10;
+  }
+
+  header img {
+    @apply mx-auto h-auto w-full max-w-lg object-contain drop-shadow-md;
+  }
+}
+
+/* Components */
+@layer components {
+  .pattern {
+    @apply absolute z-0 h-screen w-screen bg-hero-pattern bg-cover bg-center;
+  }
+
+  .wrapper {
+    @apply relative z-10 mx-auto flex max-w-7xl flex-col px-5 py-12;
+    @apply xs:p-10;
+  }
+
+  /* Trending Section */
+  .trending {
+    @apply mt-20;
+
+    & ul {
+      @apply -mt-10 flex w-full flex-row gap-5 overflow-y-auto hide-scrollbar;
+    }
+
+    & ul li {
+      @apply flex min-w-[230px] flex-row items-center;
+
+      & p {
+        @apply mt-[22px] text-nowrap fancy-text;
+      }
+
+      & img {
+        @apply -ml-3.5 h-[163px] w-[127px] rounded-lg object-cover;
+      }
+    }
+  }
+
+  /* Search Component */
+  .search {
+    @apply mx-auto mt-10 w-full max-w-3xl rounded-lg bg-light-100/5 px-4 py-3;
+
+    & div {
+      @apply relative flex items-center;
+    }
+
+    & img {
+      @apply absolute left-2 h-5 w-5;
+    }
+
+    & input {
+      @apply w-full bg-transparent py-2 pl-10 text-base text-gray-200 outline-hidden;
+      @apply sm:pr-10;
+      @apply placeholder:text-light-200;
+    }
+  }
+
+  /* Movie Grid */
+  .all-movies {
+    @apply space-y-6;
+
+    & h2 {
+      @apply mb-4;
+    }
+
+    & ul {
+      @apply grid grid-cols-1 gap-5;
+      @apply xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+    }
+  }
+
+  /* Movie Card */
+  .movie-card {
+    @apply rounded-2xl bg-dark-100 p-5 shadow-inner shadow-light-100/10;
+
+    & img {
+      @apply h-auto w-full rounded-lg;
+    }
+
+    & h3 {
+      @apply line-clamp-1 text-base font-bold text-white;
+    }
+
+    & .content {
+      @apply mt-2 flex flex-row flex-wrap items-center gap-2;
+    }
+
+    & .rating {
+      @apply flex flex-row items-center gap-1;
+
+      & img {
+        @apply size-4 object-contain;
+      }
+
+      & p {
+        @apply text-base font-bold text-white;
+      }
+    }
+
+    & .content {
+      & span {
+        @apply text-sm text-gray-100;
+      }
+
+      & .lang {
+        @apply text-base font-medium capitalize text-gray-100;
+      }
+
+      & .year {
+        @apply text-base font-medium text-gray-100;
+      }
+    }
+  }
+
+  /* Enhanced Movie Card */
+  .movie-card {
+    @apply rounded-2xl bg-dark-100 shadow-inner shadow-light-100/10 overflow-hidden transition-transform duration-200 cursor-pointer;
+
+    &:hover {
+      @apply transform -translate-y-1 shadow-lg shadow-light-100/20;
+    }
+
+    & .poster-container {
+      @apply relative overflow-hidden;
+
+      & img {
+        @apply h-auto w-full object-cover transition-transform duration-300;
+      }
+    }
+
+    &:hover .poster-container img {
+      @apply transform scale-105;
+    }
+
+    & .movie-info {
+      @apply p-5;
+
+      & .movie-title {
+        @apply line-clamp-1 text-base font-bold text-white;
+      }
+
+      & .movie-meta {
+        @apply mt-2 flex flex-row flex-wrap items-center gap-2 text-white;
+
+        & .rating {
+          @apply flex flex-row items-center gap-1;
+
+          & img {
+            @apply size-4 object-contain;
+          }
+
+          & p {
+            @apply text-base font-bold text-white;
+          }
+        }
+
+        & .separator {
+          @apply text-sm text-gray-100;
+        }
+
+        & .lang {
+          @apply text-base font-medium capitalize text-gray-100;
+        }
+
+        & .year {
+          @apply text-base font-medium text-gray-100;
+        }
+      }
+    }
+
+    /* Favorites Button */
+    & .favorite-btn {
+      @apply absolute top-3 right-3 z-10 size-9 rounded-full bg-primary/70 flex items-center justify-center transition-all duration-200 backdrop-blur-sm;
+      @apply opacity-0;
+
+      &:hover {
+        @apply bg-primary transform scale-110;
+      }
+
+      &.is-favorite {
+        @apply opacity-100;
+      }
+    }
+
+    &:hover .favorite-btn {
+      @apply opacity-100;
+    }
+  }
+
+  /* Movie Details Modal */
+  .movie-details-modal {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/80 backdrop-blur-sm overflow-y-auto;
+
+    & .movie-details-content {
+      @apply relative w-full max-w-4xl bg-dark-100 rounded-2xl shadow-xl shadow-light-100/10 overflow-hidden max-h-[90vh] overflow-y-auto;
+    }
+
+    & .close-btn {
+      @apply absolute top-4 right-4 z-10 size-10 rounded-full bg-primary/70 flex items-center justify-center text-2xl text-white backdrop-blur-sm;
+      @apply hover:bg-primary/90 transition-colors duration-200;
+    }
+
+    & .movie-details-header {
+      @apply flex flex-col gap-6 p-6;
+      @apply md:flex-row;
+
+      & .movie-poster {
+        @apply w-full rounded-xl shadow-lg shadow-light-100/5 mx-auto;
+        @apply md:w-80 md:mx-0;
+      }
+
+      & .movie-info {
+        @apply flex-1;
+
+        & h2 {
+          @apply text-3xl font-bold text-white mb-2;
+        }
+
+        & .tagline {
+          @apply text-light-200 italic mb-4 text-lg;
+        }
+
+        & .movie-meta {
+          @apply flex flex-wrap items-center gap-3 mb-6 text-light-200;
+
+          & .year,
+          & .runtime {
+            @apply text-base font-medium text-light-200;
+          }
+
+          & .separator {
+            @apply text-light-200;
+          }
+
+          & .rating {
+            @apply flex flex-row items-center gap-1;
+
+            & img {
+              @apply size-4 object-contain;
+            }
+
+            & p {
+              @apply text-base font-bold text-white;
+            }
+          }
+        }
+
+        & .genres {
+          @apply flex flex-wrap gap-2 mb-6;
+
+          & .genre-tag {
+            @apply bg-primary/50 px-3 py-1 rounded-full text-light-200 text-sm;
+          }
+        }
+
+        & .overview {
+          @apply mb-6;
+
+          & h3 {
+            @apply text-xl font-bold text-white mb-2;
+          }
+
+          & p {
+            @apply text-light-200 leading-relaxed;
+          }
+        }
+
+        & .trailer-container {
+          @apply mt-8;
+
+          & h3 {
+            @apply text-xl font-bold text-white mb-4;
+          }
+
+          & iframe {
+            @apply rounded-lg w-full aspect-video;
+          }
+        }
+      }
+    }
+  }
+
+  /* Pagination Controls */
+  .pagination {
+    @apply flex justify-center items-center gap-4 mt-10;
+
+    & .pagination-btn {
+      @apply px-4 py-2 bg-dark-100 rounded-lg text-light-200 font-medium transition-colors duration-200;
+      @apply hover:bg-light-100/10;
+      @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-dark-100;
+    }
+
+    & .page-info {
+      @apply text-light-200;
+    }
+  }
+
+  /* Filter Controls */
+  .filter-controls {
+    @apply mb-8 bg-dark-100 rounded-xl p-5;
+
+    & .sort-control {
+      @apply mb-5;
+
+      & label {
+        @apply text-light-200 mr-3;
+      }
+
+      & select {
+        @apply bg-primary px-4 py-2 rounded-lg text-light-200 border border-light-100/10;
+        @apply focus:outline-none focus:border-light-100/30;
+      }
+    }
+
+    & .genre-filters {
+      & h3 {
+        @apply text-xl text-white mb-3;
+      }
+
+      & .genre-tags {
+        @apply flex flex-wrap gap-2;
+
+        & .genre-tag {
+          @apply bg-primary px-3 py-1 rounded-full text-light-200 text-sm cursor-pointer transition-colors duration-200;
+          @apply hover:bg-light-100/10;
+
+          &.active {
+            @apply bg-gradient-to-r from-[#D6C7FF] to-[#AB8BFF] text-primary font-medium;
+          }
+        }
+      }
+    }
+  }
+
+  /* Filter Sort Component */
+  .filter-sort {
+    @apply mb-8 rounded-xl bg-dark-100 overflow-hidden animate-fade-in;
+  }
+
+  .filter-toggle {
+    @apply w-full flex justify-between items-center p-4 text-light-200 text-lg font-medium bg-gradient-to-r from-dark-100 to-primary/70 transition-colors duration-200;
+    @apply hover:bg-primary;
+
+    & .icon {
+      @apply transition-transform duration-300;
+    }
+  }
+
+  .filter-options {
+    @apply p-5 border-t border-light-100/10 animate-slide-up;
+  }
+
+  .filter-section {
+    @apply mb-6 last:mb-0;
+
+    & h3 {
+      @apply mb-3 text-white text-lg font-medium;
+    }
+
+    & select {
+      @apply w-full bg-primary rounded-lg px-4 py-2 text-light-200 border border-light-100/10;
+      @apply focus:outline-none focus:border-light-100/30;
+      @apply appearance-none bg-no-repeat;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23a8b5db' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-position: right 10px center;
+      background-size: 20px;
+
+      &:hover {
+        @apply border-light-100/20;
+      }
+    }
+
+    & input[type="number"] {
+      @apply w-full bg-primary rounded-lg px-4 py-2 text-light-200 border border-light-100/10;
+      @apply focus:outline-none focus:border-light-100/30;
+
+      &:hover {
+        @apply border-light-100/20;
+      }
+    }
+  }
+
+  .genre-options {
+    @apply grid grid-cols-1 gap-3;
+    @apply sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .genre-checkbox {
+    @apply flex items-center text-light-200 cursor-pointer transition-colors duration-200;
+    @apply hover:text-white;
+
+    & input[type="checkbox"] {
+      @apply mr-2 h-5 w-5 cursor-pointer accent-light-100;
+    }
+  }
+
+  .clear-filters {
+    @apply mt-6 w-full py-2.5 px-4 bg-primary rounded-lg text-light-200 font-medium transition-colors duration-200 border border-light-100/10;
+    @apply hover:bg-light-100/5 hover:text-white;
+  }
+
+  /* Favorites Section */
+  .favorites-section {
+    @apply mt-16 mb-12;
+
+    & h2 {
+      @apply flex items-center gap-2 mb-6;
+
+      &::before {
+        content: "";
+        @apply inline-block size-6 bg-contain bg-no-repeat;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ff0000' viewBox='0 0 24 24'%3E%3Cpath d='M12,21.35L10.55,20.03C5.4,15.36 2,12.28 2,8.5C2,5.42 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.09C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.42 22,8.5C22,12.28 18.6,15.36 13.45,20.03L12,21.35Z'/%3E%3C/svg%3E");
+      }
+    }
+
+    & ul {
+      @apply grid grid-cols-1 gap-5;
+      @apply xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+    }
+  }
+}
+
+/* Utilities */
+@utility text-gradient {
+  @apply bg-linear-to-r from-[#D6C7FF] to-[#AB8BFF] bg-clip-text text-transparent;
+}
+
+@utility fancy-text {
+  -webkit-text-stroke: 5px rgba(206, 206, 251, 0.5);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 190px;
+}
+
+@utility hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility error {
+  @apply text-center text-4xl font-bold text-red-500;
+}
+
+/* New Utilities */
+@utility backdrop-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@utility animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
