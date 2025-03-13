@@ -107,12 +107,5 @@ Users can filter movies by:
 
 Movie favorites are stored in the browser's localStorage, allowing users to maintain a list of their preferred movies across sessions.
 
-## License
 
-[MIT](LICENSE)
 
-## Acknowledgements
-
-- [TMDB](https://www.themoviedb.org/) for providing the movie database API
-- [Appwrite](https://appwrite.io/) for the backend services
-- All the open-source libraries and tools that made this project possible
