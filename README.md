@@ -1,8 +1,11 @@
-# MovieFinder
+# [MovieFinder](https://movies-finder-lemon.vercel.app/)  
 
-A modern React application for discovering, searching, and saving your favorite movies, built with React 19, Vite, Tailwind CSS, and Appwrite.
+Discover, search, and save your favorite movies with **MovieFinder**—a sleek, modern React application built using cutting-edge technologies like **React 19**, **Vite**, **Tailwind CSS**, and **Appwrite**.  
 
 ![MovieFinder Screenshot](/public/hero.png)
+
+## 🚀 Live Preview  
+Check out the live app: [MovieFinder Live Demo](https://movies-finder-lemon.vercel.app/)  
 
 ## Features
 
