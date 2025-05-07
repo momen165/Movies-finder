@@ -70,29 +70,30 @@ const FilterSort = ({ onFilterChange, onSortChange, currentFilters, currentSort 
         currentSort !== 'popularity.desc';
 
     return (
-        <div className="filter-sort">
+        <div className="filter-sort" role="region" aria-label="Movie filters">
             <button
                 className="filter-toggle"
                 onClick={toggleExpand}
                 aria-expanded={isExpanded}
+                aria-controls="filter-options-panel"
             >
                 {isExpanded ? 'Hide Filters' : 'Show Filters'}
                 {hasActiveFilters && !isExpanded && (
-                    <span className="ml-2 px-2 py-0.5 text-xs bg-light-100/20 rounded-full">
+                    <span className="ml-2 px-2 py-0.5 text-xs bg-light-100/20 rounded-full" aria-label="Filters are currently active">
                         Active Filters
                     </span>
                 )}
-                <span className="icon">{isExpanded ? '▲' : '▼'}</span>
+                <span className="icon" aria-hidden="true">{isExpanded ? '▲' : '▼'}</span>
             </button>
 
             {isExpanded && (
-                <div className="filter-options">
+                <div className="filter-options" id="filter-options-panel">
                     <div className="filter-section">
-                        <h3>Sort By</h3>
+                        <h3 id="sort-heading">Sort By</h3>
                         <select
                             value={currentSort}
                             onChange={handleSortChange}
-                            aria-label="Sort movies by"
+                            aria-labelledby="sort-heading"
                         >
                             {sortOptions.map(option => (
                                 <option key={option.value} value={option.value}>

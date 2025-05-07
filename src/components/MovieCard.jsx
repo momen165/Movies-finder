@@ -6,6 +6,8 @@ const MovieCard = ({
     onSelectMovie,
     isFavorite = false,
     onToggleFavorite
+    
+    
 }) => {
     const { id, title, vote_average, poster_path, release_date, original_language } = movie
     const [imageError, setImageError] = useState(false)
@@ -21,7 +23,7 @@ const MovieCard = ({
 
     const posterUrl = poster_path && !imageError
         ? `https://image.tmdb.org/t/p/w500/${poster_path}`
-        : 'https://placehold.co/500x750?text=No+Poster'
+        : '/no-poster.png' // Use local fallback image instead of external service dependency
 
     return (
         <div
@@ -32,6 +34,7 @@ const MovieCard = ({
                 <img
                     src={posterUrl}
                     alt={title}
+                    loading="lazy"
                     onError={handleImageError}
                 />
 

@@ -1,11 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
-import Search from './components/search.jsx';
-import Spinner from "./components/Spinner.jsx";
-import MovieCard from "./components/MovieCard.jsx";
-import FilterSort from "./components/FilterSort.jsx";
 import { useDebounce } from "react-use";
 import { getTrendingMovies, updateSearchCount } from "./appwrite.js";
 import { Analytics } from '@vercel/analytics/react';
+
+// Component imports
+import Header from './components/Header';
+import TrendingMovies from './components/TrendingMovies';
+import MovieList from './components/MovieList';
+import MovieDetailsModal from './components/MovieDetailsModal';
 
 // Constants moved outside component to prevent recreation on renders
 const API_BASE_URL = 'https://api.themoviedb.org/3';
@@ -28,7 +30,6 @@ const App = () => {
     const [trendingMovies, setTrendingMovies] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
-    const [selectedMovieId, setSelectedMovieId] = useState(null);
     const [favorites, setFavorites] = useState(() => {
         const saved = localStorage.getItem('movieFavorites');
         return saved ? JSON.parse(saved) : [];
@@ -38,7 +39,7 @@ const App = () => {
         year: null
     });
     const [sortOption, setSortOption] = useState('popularity.desc');
-    // New states for movie details modal
+    // Movie details modal states
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [movieDetails, setMovieDetails] = useState(null);
@@ -89,14 +90,20 @@ const App = () => {
             }
         } catch (error) {
             console.error('Movie fetch error:', error);
-            setErrorMessage('Something went wrong. Please try again later.');
+            if (error.message.includes('Network response error')) {
+                setErrorMessage(`API Error: ${error.message}. Please check your internet connection.`);
+            } else if (error.message.includes('Failed to fetch')) {
+                setErrorMessage('Unable to connect to movie database. Please check your internet connection.');
+            } else {
+                setErrorMessage('Something went wrong. Please try again later.');
+            }
         } finally {
             setIsLoading(false);
         }
     }, [filters, sortOption]);
 
 
-    // New function to fetch movie details
+    // Function to fetch movie details
     const fetchMovieDetails = useCallback(async (movieId) => {
         if (!movieId) return;
 
@@ -150,7 +157,13 @@ const App = () => {
 
     // Effect for searching movies
     useEffect(() => {
-        fetchMovies(debouncedSearchTerm, currentPage);
+        const fetchData = async () => {
+            await fetchMovies(debouncedSearchTerm, currentPage);
+        };
+        
+        fetchData();
+        
+        // No cleanup needed as we're not using any state variable
     }, [debouncedSearchTerm, currentPage, fetchMovies]);
 
     // Effect for initial load of trending movies
@@ -160,7 +173,6 @@ const App = () => {
 
     // Updated handleSelectMovie function to open the modal with details
     const handleSelectMovie = (movieId) => {
-        setSelectedMovieId(movieId);
         setIsModalOpen(true);
 
         // Find the basic movie data from our list
@@ -197,244 +209,58 @@ const App = () => {
     const isFavorite = (movieId) => {
         return favorites.some(fav => fav.id === movieId);
     };
+    
     // Scroll to the movies cards 
     const scrollToTop = () => {
         const moviesSection = document.querySelector('.all-movies');
         if (moviesSection) {
             moviesSection.scrollIntoView({ behavior: 'smooth' });
         }
-
-
     };
 
     useEffect(() => {
         scrollToTop();
     }, []);
-    // Movie Details Modal Component
-    const MovieDetailsModal = () => {
-        if (!isModalOpen || !selectedMovie) return null;
-
-        return (
-            <div className="movie-details-modal" onClick={closeModal}>
-                <div className="movie-details-content" onClick={e => e.stopPropagation()}>
-                    <button className="close-btn" onClick={closeModal}>×</button>
-
-                    {isLoadingDetails ? (
-                        <div className="p-8 flex justify-center">
-                            <Spinner />
-                        </div>
-                    ) : movieDetails ? (
-                        <div className="movie-details-header">
-                            <img
-                                className="movie-poster"
-                                src={movieDetails.poster_path
-                                    ? `https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`
-                                    : '/no-poster.png'
-                                }
-                                alt={movieDetails.title}
-                            />
-
-                            <div className="movie-info">
-                                <h2>{movieDetails.title}</h2>
-
-                                {movieDetails.tagline && (
-                                    <div className="tagline">{movieDetails.tagline}</div>
-                                )}
-
-                                <div className="movie-meta">
-                                    {movieDetails.release_date && (
-                                        <span className="year">{new Date(movieDetails.release_date).getFullYear()}</span>
-                                    )}
-                                    {movieDetails.release_date && movieDetails.runtime && (
-                                        <span className="separator">•</span>
-                                    )}
-                                    {movieDetails.runtime && (
-                                        <span className="runtime">{movieDetails.runtime} mins</span>
-                                    )}
-                                    {movieDetails.runtime && movieDetails.vote_average && (
-                                        <span className="separator">•</span>
-                                    )}
-                                    {movieDetails.vote_average && (
-                                        <div className="rating">
-                                            <img src="/star.svg" alt="rating" />
-                                            <p>{movieDetails.vote_average?.toFixed(1) || 'N/A'}</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {movieDetails.genres && movieDetails.genres.length > 0 && (
-                                    <div className="genres">
-                                        {movieDetails.genres.map(genre => (
-                                            <span key={genre.id} className="genre-tag">
-                                                {genre.name}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
-
-                                <div className="overview">
-                                    <h3 className="text-xl font-bold text-white mb-2">Overview</h3>
-                                    <p className="text-light-200 leading-relaxed">{movieDetails.overview || 'No overview available'}</p>
-                                </div>
-
-                                {movieDetails.credits && movieDetails.credits.cast && movieDetails.credits.cast.length > 0 && (
-                                    <div className="cast">
-                                        <h3 className="text-xl font-bold text-white mb-2">Cast</h3>
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                            {movieDetails.credits.cast
-                                                .slice(0, 5)
-                                                .map((person, index, array) => (
-                                                    <span key={person.id} className="text-light-200">
-                                                        {person.name}
-                                                        {index < array.length - 1 && ', '}
-                                                    </span>
-                                                ))
-                                            }
-                                        </div>
-                                    </div>
-                                )}
-
-                                {movieDetails.videos &&
-                                    movieDetails.videos.results &&
-                                    movieDetails.videos.results.length > 0 && (() => {
-                                        // Filter official trailers
-                                        const officialTrailer = movieDetails.videos.results.find(
-                                            (video) => video.type === "Trailer" && video.site === "YouTube"
-                                        );
-
-                                        // If no official trailer, pick the first available video
-                                        const selectedVideo = officialTrailer || movieDetails.videos.results[0];
-
-                                        return selectedVideo ? (
-                                            <div className="trailer-container">
-                                                <h3 className="text-xl font-bold text-white mb-4">Trailer</h3>
-                                                <iframe
-                                                    className="rounded-lg w-full aspect-video"
-                                                    src={`https://www.youtube.com/embed/${selectedVideo.key}`}
-                                                    title={selectedVideo.name}
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                    allowFullScreen
-                                                ></iframe>
-                                            </div>
-                                        ) : null;
-                                    })()}
-
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="p-8 text-center text-light-200">
-                            Failed to load movie details
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    // Extracted TrendingMovies component for better readability
-    const TrendingMovies = () => {
-        if (!trendingMovies.length) return null;
-
-        return (
-            <section className="trending">
-                <h2>Trending Movies</h2>
-                <ul>
-                    {trendingMovies.map((movie, index) => (
-                        <li key={movie.$id}>
-                            <p>{index + 1}</p>
-                            <img src={movie.poster_url} alt={movie.title} />
-                            <p>{movie.title}</p>
-                        </li>
-                    ))}
-                </ul>
-            </section>
-        );
-    };
-
-    // Add pagination controls component
-    const PaginationControls = () => {
-        if (totalPages <= 1) return null;
-
-        return (
-            <div className="pagination">
-                <button
-                    onClick={() => {
-                        setCurrentPage(prev => Math.max(prev - 1, 1));
-                        scrollToTop();
-
-                    }}
-                    disabled={currentPage === 1}
-                    className="pagination-btn"
-                >
-                    Previous
-                </button>
-                <span className="page-info">Page {currentPage} of {totalPages}</span>
-                <button
-                    onClick={() => {
-                        setCurrentPage(prev => Math.min(prev + 1, totalPages));
-                        scrollToTop();
-                    }}
-                    disabled={currentPage === totalPages}
-                    className="pagination-btn"
-                >
-                    Next
-                </button>
-            </div >
-        );
-    };
 
     return (
         <main>
             <div className="pattern" />
             <div className="wrapper">
-                <header>
-                    <img src="/hero.png" alt="The movies" />
-                    <h1>Find <span className="text-gradient">Movies</span> You&#39;ll enjoy without the hassle</h1>
-                    <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-                </header>
+                <Header 
+                    searchTerm={searchTerm} 
+                    setSearchTerm={setSearchTerm} 
+                />
 
-                <TrendingMovies />
+                <TrendingMovies trendingMovies={trendingMovies} />
 
-                <section className="all-movies">
-                    <h2>All Movies</h2>
+                <MovieList
+                    isLoading={isLoading}
+                    errorMessage={errorMessage}
+                    movieList={movieList}
+                    handleSelectMovie={handleSelectMovie}
+                    isFavorite={isFavorite}
+                    toggleFavorite={toggleFavorite}
+                    debouncedSearchTerm={debouncedSearchTerm}
+                    filters={filters}
+                    sortOption={sortOption}
+                    handleFilterChange={handleFilterChange}
+                    handleSortChange={handleSortChange}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    setCurrentPage={setCurrentPage}
+                    scrollToTop={scrollToTop}
+                />
 
-                    {!debouncedSearchTerm && (
-                        <FilterSort
-                            onFilterChange={handleFilterChange}
-                            onSortChange={handleSortChange}
-                            currentFilters={filters}
-                            currentSort={sortOption}
-                        />
-                    )}
-
-                    {isLoading ? (
-                        <Spinner />
-                    ) : errorMessage ? (
-                        <p className="text-red-500">{errorMessage}</p>
-                    ) : (
-                        <>
-                            <ul>
-                                {movieList.map((movie) => (
-                                    <MovieCard
-                                        key={movie.id}
-                                        movie={movie}
-                                        onSelectMovie={handleSelectMovie}
-                                        isFavorite={isFavorite(movie.id)}
-                                        onToggleFavorite={toggleFavorite}
-                                    />
-                                ))}
-                            </ul>
-                            <PaginationControls />
-                        </>
-                    )}
-                </section>
-
-                {/* Render the movie details modal */}
-                <MovieDetailsModal />
+                <MovieDetailsModal
+                    isModalOpen={isModalOpen}
+                    selectedMovie={selectedMovie}
+                    movieDetails={movieDetails}
+                    isLoadingDetails={isLoadingDetails}
+                    closeModal={closeModal}
+                />
             </div>
             <Analytics />
         </main>
-
     );
 };
 
